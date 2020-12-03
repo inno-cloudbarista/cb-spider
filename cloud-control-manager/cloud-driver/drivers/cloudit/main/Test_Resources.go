@@ -29,12 +29,12 @@ func testImageHandler(config Config) {
 		imageHandler = resourceHandler.(irs.ImageHandler)
 	}
 
-	fmt.Println("Test ImageHandler")
-	fmt.Println("1. ListImage()")
-	fmt.Println("2. GetImage()")
-	fmt.Println("3. CreateImage()")
-	fmt.Println("4. DeleteImage()")
-	fmt.Println("5. Exit")
+	cblogger.Info("Test ImageHandler")
+	cblogger.Info("1. ListImage()")
+	cblogger.Info("2. GetImage()")
+	cblogger.Info("3. CreateImage()")
+	cblogger.Info("4. DeleteImage()")
+	cblogger.Info("5. Exit")
 
 	//var imageId string
 	imageId := irs.IID{
@@ -47,48 +47,48 @@ Loop:
 		var commandNum int
 		inputCnt, err := fmt.Scan(&commandNum)
 		if err != nil {
-			fmt.Println(err)
+			cblogger.Error(err)
 		}
 
 		if inputCnt == 1 {
 			switch commandNum {
 			case 1:
-				fmt.Println("Start ListImage() ...")
+				cblogger.Info("Start ListImage() ...")
 				if imageList, err := imageHandler.ListImage(); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					spew.Dump(imageList)
 				}
-				fmt.Println("Finish ListImage()")
+				cblogger.Info("Finish ListImage()")
 			case 2:
-				fmt.Println("Start GetImage() ...")
+				cblogger.Info("Start GetImage() ...")
 				if imageInfo, err := imageHandler.GetImage(imageId); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					spew.Dump(imageInfo)
 				}
-				fmt.Println("Finish GetImage()")
+				cblogger.Info("Finish GetImage()")
 			case 3:
-				fmt.Println("Start CreateImage() ...")
+				cblogger.Info("Start CreateImage() ...")
 				reqInfo := irs.ImageReqInfo{
 					IId: irs.IID{
 						NameId: config.Cloudit.Resource.Image.Name,
 					},
 				}
 				if image, err := imageHandler.CreateImage(reqInfo); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					imageId = image.IId
 				}
-				fmt.Println("Finish CreateImage()")
+				cblogger.Info("Finish CreateImage()")
 			case 4:
-				fmt.Println("Start DeleteImage() ...")
+				cblogger.Info("Start DeleteImage() ...")
 				if ok, err := imageHandler.DeleteImage(imageId); !ok {
-					fmt.Println(err)
+					cblogger.Error(err)
 				}
-				fmt.Println("Finish DeleteImage()")
+				cblogger.Info("Finish DeleteImage()")
 			case 5:
-				fmt.Println("Exit")
+				cblogger.Info("Exit")
 				break Loop
 			}
 		}
@@ -100,17 +100,17 @@ Loop:
 func testPublicIPHanlder(config Config) {
 	resourceHandler, err := getResourceHandler("publicip")
 	if err != nil {
-		fmt.Println(err)
+		cblogger.Error(err)
 	}
 
 	publicIPHandler := resourceHandler.(irs.PublicIPHandler)
 
-	fmt.Println("Test PublicIPHandler")
-	fmt.Println("1. ListPublicIP()")
-	fmt.Println("2. GetPublicIP()")
-	fmt.Println("3. CreatePublicIP()")
-	fmt.Println("4. DeletePublicIP()")
-	fmt.Println("5. Exit")
+	cblogger.Info("Test PublicIPHandler")
+	cblogger.Info("1. ListPublicIP()")
+	cblogger.Info("2. GetPublicIP()")
+	cblogger.Info("3. CreatePublicIP()")
+	cblogger.Info("4. DeletePublicIP()")
+	cblogger.Info("5. Exit")
 
 	var publicIPId string
 
@@ -119,42 +119,42 @@ Loop:
 		var commandNum int
 		inputCnt, err := fmt.Scan(&commandNum)
 		if err != nil {
-			fmt.Println(err)
+			cblogger.Error(err)
 		}
 
 		if inputCnt == 1 {
 			switch commandNum {
 			case 1:
-				fmt.Println("Start ListPublicIP() ...")
+				cblogger.Info("Start ListPublicIP() ...")
 				if publicList, err := publicIPHandler.ListPublicIP(); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					spew.Dump(publicList)
 				}
-				fmt.Println("Finish ListPublicIP()")
+				cblogger.Info("Finish ListPublicIP()")
 			case 2:
-				fmt.Println("Start GetPublicIP() ...")
+				cblogger.Info("Start GetPublicIP() ...")
 				if _, err := publicIPHandler.GetPublicIP(publicIPId); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				}
-				fmt.Println("Finish GetPublicIP()")
+				cblogger.Info("Finish GetPublicIP()")
 			case 3:
-				fmt.Println("Start CreatePublicIP() ...")
+				cblogger.Info("Start CreatePublicIP() ...")
 				reqInfo := irs.PublicIPReqInfo{Name: config.Cloudit.Resource.PublicIP.Name}
 				if publicIP, err := publicIPHandler.CreatePublicIP(reqInfo); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					publicIPId = publicIP.Name
 				}
-				fmt.Println("Finish CreatePublicIP()")
+				cblogger.Info("Finish CreatePublicIP()")
 			case 4:
-				fmt.Println("Start DeletePublicIP() ...")
+				cblogger.Info("Start DeletePublicIP() ...")
 				if ok, err := publicIPHandler.DeletePublicIP(publicIPId); !ok {
-					fmt.Println(err)
+					cblogger.Error(err)
 				}
-				fmt.Println("Finish DeletePublicIP()")
+				cblogger.Info("Finish DeletePublicIP()")
 			case 5:
-				fmt.Println("Exit")
+				cblogger.Info("Exit")
 				break Loop
 			}
 		}
@@ -165,17 +165,17 @@ Loop:
 func testSecurityHandler(config Config) {
 	resourceHandler, err := getResourceHandler("security")
 	if err != nil {
-		fmt.Println(err)
+		cblogger.Error(err)
 	}
 
 	securityHandler := resourceHandler.(irs.SecurityHandler)
 
-	fmt.Println("Test securityHandler")
-	fmt.Println("1. ListSecurity()")
-	fmt.Println("2. GetSecurity()")
-	fmt.Println("3. CreateSecurity()")
-	fmt.Println("4. DeleteSecurity()")
-	fmt.Println("5. Exit")
+	cblogger.Info("Test securityHandler")
+	cblogger.Info("1. ListSecurity()")
+	cblogger.Info("2. GetSecurity()")
+	cblogger.Info("3. CreateSecurity()")
+	cblogger.Info("4. DeleteSecurity()")
+	cblogger.Info("5. Exit")
 
 	securityGroupId := irs.IID{
 		NameId: config.Cloudit.Resource.Security.Name,
@@ -186,29 +186,29 @@ Loop:
 		var commandNum int
 		inputCnt, err := fmt.Scan(&commandNum)
 		if err != nil {
-			fmt.Println(err)
+			cblogger.Error(err)
 		}
 
 		if inputCnt == 1 {
 			switch commandNum {
 			case 1:
-				fmt.Println("Start ListSecurity() ...")
+				cblogger.Info("Start ListSecurity() ...")
 				if securityList, err := securityHandler.ListSecurity(); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					spew.Dump(securityList)
 				}
-				fmt.Println("Finish ListSecurity()")
+				cblogger.Info("Finish ListSecurity()")
 			case 2:
-				fmt.Println("Start GetSecurity() ...")
+				cblogger.Info("Start GetSecurity() ...")
 				if secGroupInfo, err := securityHandler.GetSecurity(securityGroupId); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					spew.Dump(secGroupInfo)
 				}
-				fmt.Println("Finish GetSecurity()")
+				cblogger.Info("Finish GetSecurity()")
 			case 3:
-				fmt.Println("Start CreateSecurity() ...")
+				cblogger.Info("Start CreateSecurity() ...")
 				reqInfo := irs.SecurityReqInfo{
 					IId: irs.IID{
 						NameId: config.Cloudit.Resource.Security.Name,
@@ -230,18 +230,18 @@ Loop:
 				}
 				security, err := securityHandler.CreateSecurity(reqInfo)
 				if err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				}
 				securityGroupId = security.IId
-				fmt.Println("Finish CreateSecurity()")
+				cblogger.Info("Finish CreateSecurity()")
 			case 4:
-				fmt.Println("Start DeleteSecurity() ...")
+				cblogger.Info("Start DeleteSecurity() ...")
 				if ok, err := securityHandler.DeleteSecurity(securityGroupId); !ok {
-					fmt.Println(err)
+					cblogger.Error(err)
 				}
-				fmt.Println("Finish DeleteSecurity()")
+				cblogger.Info("Finish DeleteSecurity()")
 			case 5:
-				fmt.Println("Exit")
+				cblogger.Info("Exit")
 				break Loop
 			}
 		}
@@ -252,17 +252,17 @@ Loop:
 func testVPCHandler(config Config) {
 	resourceHandler, err := getResourceHandler("vpc")
 	if err != nil {
-		fmt.Println(err)
+		cblogger.Error(err)
 	}
 
 	vpcHandler := resourceHandler.(irs.VPCHandler)
 
-	fmt.Println("Test testVPCHandler")
-	fmt.Println("1. ListVPC()")
-	fmt.Println("2. GetVPC()")
-	fmt.Println("3. CreateVPC()")
-	fmt.Println("4. DeleteVPC()")
-	fmt.Println("5. Exit")
+	cblogger.Info("Test testVPCHandler")
+	cblogger.Info("1. ListVPC()")
+	cblogger.Info("2. GetVPC()")
+	cblogger.Info("3. CreateVPC()")
+	cblogger.Info("4. DeleteVPC()")
+	cblogger.Info("5. Exit")
 
 	vpcId := irs.IID{NameId: "Default-VPC", SystemId: "Default-VPC"}
 
@@ -271,29 +271,29 @@ Loop:
 		var commandNum int
 		inputCnt, err := fmt.Scan(&commandNum)
 		if err != nil {
-			fmt.Println(err)
+			cblogger.Error(err)
 		}
 
 		if inputCnt == 1 {
 			switch commandNum {
 			case 1:
-				fmt.Println("Start ListVPC() ...")
+				cblogger.Info("Start ListVPC() ...")
 				if subnetList, err := vpcHandler.ListVPC(); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					spew.Dump(subnetList)
 				}
-				fmt.Println("Finish ListVPC()")
+				cblogger.Info("Finish ListVPC()")
 			case 2:
-				fmt.Println("Start GetVPC() ...")
+				cblogger.Info("Start GetVPC() ...")
 				if subnetList, err := vpcHandler.GetVPC(vpcId); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					spew.Dump(subnetList)
 				}
-				fmt.Println("Finish GetVPC()")
+				cblogger.Info("Finish GetVPC()")
 			case 3:
-				fmt.Println("Start CreateVPC() ...")
+				cblogger.Info("Start CreateVPC() ...")
 				reqInfo := irs.VPCReqInfo{
 					IId: vpcId,
 					SubnetInfoList: []irs.SubnetInfo{
@@ -312,21 +312,21 @@ Loop:
 
 				vpcInfo, err := vpcHandler.CreateVPC(reqInfo)
 				if err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				}
 
 				vpcId = vpcInfo.IId
 				spew.Dump(vpcInfo)
-				fmt.Println("Finish CreateVPC()")
+				cblogger.Info("Finish CreateVPC()")
 
 			case 4:
-				fmt.Println("Start DeleteVPC() ...")
+				cblogger.Info("Start DeleteVPC() ...")
 				if ok, err := vpcHandler.DeleteVPC(vpcId); !ok {
-					fmt.Println(err)
+					cblogger.Error(err)
 				}
-				fmt.Println("Finish DeleteVPC()")
+				cblogger.Info("Finish DeleteVPC()")
 			case 5:
-				fmt.Println("Exit")
+				cblogger.Info("Exit")
 				break Loop
 			}
 		}
@@ -337,17 +337,17 @@ Loop:
 func testVNicHandler(config Config) {
 	resourceHandler, err := getResourceHandler("vnic")
 	if err != nil {
-		fmt.Println(err)
+		cblogger.Error(err)
 	}
 
 	vNicHandler := resourceHandler.(irs.VNicHandler)
 
-	fmt.Println("Test vNetworkHandler")
-	fmt.Println("1. ListVNic()")
-	fmt.Println("2. GetVNic()")
-	fmt.Println("3. CreateVNic()")
-	fmt.Println("4. DeleteVNic()")
-	fmt.Println("5. Exit")
+	cblogger.Info("Test vNetworkHandler")
+	cblogger.Info("1. ListVNic()")
+	cblogger.Info("2. GetVNic()")
+	cblogger.Info("3. CreateVNic()")
+	cblogger.Info("4. DeleteVNic()")
+	cblogger.Info("5. Exit")
 
 	nicId := config.Cloudit.Resource.VNic.Mac
 
@@ -356,27 +356,27 @@ Loop:
 		var commandNum int
 		inputCnt, err := fmt.Scan(&commandNum)
 		if err != nil {
-			fmt.Println(err)
+			cblogger.Error(err)
 		}
 
 		if inputCnt == 1 {
 			switch commandNum {
 			case 1:
-				fmt.Println("Start ListVNic() ...")
+				cblogger.Info("Start ListVNic() ...")
 				if vNicList, err := vNicHandler.ListVNic(); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					spew.Dump(vNicList)
 				}
-				fmt.Println("Finish ListVNic()")
+				cblogger.Info("Finish ListVNic()")
 			case 2:
-				fmt.Println("Start GetVNic() ...")
+				cblogger.Info("Start GetVNic() ...")
 				if _, err := vNicHandler.GetVNic(nicId); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				}
-				fmt.Println("Finish GetVNic()")
+				cblogger.Info("Finish GetVNic()")
 			case 3:
-				fmt.Println("Start CreateVNic() ...")
+				cblogger.Info("Start CreateVNic() ...")
 				//reqInfo := nic.VNicReqInfo{
 				//	SubnetAddr: "10.0.8.0",
 				//	VmId:       "025e5edc-54ad-4b98-9292-6eeca4c36a6d",
@@ -390,17 +390,17 @@ Loop:
 				//}
 				reqInfo := irs.VNicReqInfo{}
 				if _, err := vNicHandler.CreateVNic(reqInfo); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				}
-				fmt.Println("Finish CreateVNic()")
+				cblogger.Info("Finish CreateVNic()")
 			case 4:
-				fmt.Println("Start DeleteVNic() ...")
+				cblogger.Info("Start DeleteVNic() ...")
 				if ok, err := vNicHandler.DeleteVNic(nicId); !ok {
-					fmt.Println(err)
+					cblogger.Error(err)
 				}
-				fmt.Println("Finish DeleteVNic()")
+				cblogger.Info("Finish DeleteVNic()")
 			case 5:
-				fmt.Println("Exit")
+				cblogger.Info("Exit")
 				break Loop
 			}
 		}
@@ -410,16 +410,16 @@ Loop:
 func testVmSpecHandler(config Config) {
 	resourceHandler, err := getResourceHandler("vmspec")
 	if err != nil {
-		fmt.Println(err)
+		cblogger.Error(err)
 	}
 	vmSpecHandler := resourceHandler.(irs.VMSpecHandler)
 
-	fmt.Println("Test VmSpecHandler")
-	fmt.Println("1. ListVmSpec()")
-	fmt.Println("2. GetVmSpec()")
-	fmt.Println("3. ListOrgVmSpec()")
-	fmt.Println("4. GetOrgVmSpec()")
-	fmt.Println("9. Exit")
+	cblogger.Info("Test VmSpecHandler")
+	cblogger.Info("1. ListVmSpec()")
+	cblogger.Info("2. GetVmSpec()")
+	cblogger.Info("3. ListOrgVmSpec()")
+	cblogger.Info("4. GetOrgVmSpec()")
+	cblogger.Info("9. Exit")
 
 	region := config.Cloudit.TenantID
 	vmSpecName := "large-4"
@@ -429,45 +429,45 @@ Loop:
 		var commandNum int
 		inputCnt, err := fmt.Scan(&commandNum)
 		if err != nil {
-			fmt.Println(err)
+			cblogger.Error(err)
 		}
 
 		if inputCnt == 1 {
 			switch commandNum {
 			case 1:
-				fmt.Println("Start ListVmSpec() ...")
+				cblogger.Info("Start ListVmSpec() ...")
 				if list, err := vmSpecHandler.ListVMSpec(region); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					spew.Dump(list)
 				}
-				fmt.Println("Finish ListVmSpec()")
+				cblogger.Info("Finish ListVmSpec()")
 			case 2:
-				fmt.Println("Start GetVmSpec() ...")
+				cblogger.Info("Start GetVmSpec() ...")
 				if vmSpec, err := vmSpecHandler.GetVMSpec(region, vmSpecName); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					spew.Dump(vmSpec)
 				}
-				fmt.Println("Finish GetVmSpec()")
+				cblogger.Info("Finish GetVmSpec()")
 			case 3:
-				fmt.Println("Start ListOrgVmSpec() ...")
+				cblogger.Info("Start ListOrgVmSpec() ...")
 				if listStr, err := vmSpecHandler.ListOrgVMSpec(region); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					fmt.Println(listStr)
 				}
-				fmt.Println("Finish ListOrgVmSpec()")
+				cblogger.Info("Finish ListOrgVmSpec()")
 			case 4:
-				fmt.Println("Start GetOrgVmSpec() ...")
+				cblogger.Info("Start GetOrgVmSpec() ...")
 				if vmSpecStr, err := vmSpecHandler.GetOrgVMSpec(region, vmSpecName); err != nil {
-					fmt.Println(err)
+					cblogger.Error(err)
 				} else {
 					fmt.Println(vmSpecStr)
 				}
-				fmt.Println("Finish GetOrgVmSpec()")
+				cblogger.Info("Finish GetOrgVmSpec()")
 			case 9:
-				fmt.Println("Exit")
+				cblogger.Info("Exit")
 				break Loop
 			}
 		}
@@ -518,16 +518,16 @@ func getResourceHandler(resourceType string) (interface{}, error) {
 }
 
 func showTestHandlerInfo() {
-	fmt.Println("==========================================================")
-	fmt.Println("[Test ResourceHandler]")
-	fmt.Println("1. ImageHandler")
-	fmt.Println("2. PublicIPHandler x")
-	fmt.Println("3. SecurityHandler")
-	fmt.Println("4. VPCHandler")
-	fmt.Println("5. VNicHandler x")
-	fmt.Println("6. VMSpecHandler")
-	fmt.Println("7. Exit")
-	fmt.Println("==========================================================")
+	cblogger.Info("==========================================================")
+	cblogger.Info("[Test ResourceHandler]")
+	cblogger.Info("1. ImageHandler")
+	cblogger.Info("2. PublicIPHandler x")
+	cblogger.Info("3. SecurityHandler")
+	cblogger.Info("4. VPCHandler")
+	cblogger.Info("5. VNicHandler x")
+	cblogger.Info("6. VMSpecHandler")
+	cblogger.Info("7. Exit")
+	cblogger.Info("==========================================================")
 }
 
 func main() {
@@ -541,7 +541,7 @@ Loop:
 		var commandNum int
 		inputCnt, err := fmt.Scan(&commandNum)
 		if err != nil {
-			fmt.Println(err)
+			cblogger.Error(err)
 		}
 
 		if inputCnt == 1 {
@@ -565,7 +565,7 @@ Loop:
 				testVmSpecHandler(config)
 				showTestHandlerInfo()
 			case 7:
-				fmt.Println("Exit Test ResourceHandler Program")
+				cblogger.Info("Exit Test ResourceHandler Program")
 				break Loop
 			}
 		}
@@ -608,16 +608,16 @@ type Config struct {
 
 func readConfigFile() Config {
 	// Set Environment Value of Project Root Path4
-	rootPath := os.Getenv("CBSPIDER_ROOT")
+	rootPath := os.Getenv("CBSPIDER_PATH")
 	data, err := ioutil.ReadFile(rootPath + "/conf/config.yaml")
 	if err != nil {
-		fmt.Println(err)
+		cblogger.Error(err)
 	}
 
 	var config Config
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		fmt.Println(err)
+		cblogger.Error(err)
 	}
 	//spew.Dump(config)
 	return config
