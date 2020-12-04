@@ -43,7 +43,7 @@ func createVM(config Config, vmHandler irs.VMHandler) (irs.VMInfo, error) {
 		SecurityGroupIIDs: []irs.IID{
 			{
 				SystemId: config.Cloudit.VMInfo.SecGroupsID,
-				NameId:   config.Cloudit.VMInfo.Name,
+				NameId:   config.Cloudit.VMInfo.SecGroupsName,
 			},
 		},
 		VpcIID: irs.IID{
