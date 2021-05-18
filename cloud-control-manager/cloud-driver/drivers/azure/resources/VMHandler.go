@@ -16,6 +16,9 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
+
+	"golang.org/x/sync/errgroup"
 
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2018-06-01/compute"
 	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-04-01/network"
@@ -256,7 +259,7 @@ func (vmHandler *AzureVMHandler) TerminateVM(vmIID irs.IID) (irs.VMStatus, error
 		return irs.Failed, err
 	}
 	osDiskName := vmInfo.VMBootDisk
-/* Detach may not be required for dynamic public IP mode. by powerkim. 2021.04.30.
+
 	// TODO: nested flow 개선
 	// VNic에서 PublicIP 연결해제
 	vNicDetachStatus, err := DetachVNic(vmHandler, vmInfo)
@@ -264,49 +267,67 @@ func (vmHandler *AzureVMHandler) TerminateVM(vmIID irs.IID) (irs.VMStatus, error
 		LoggingError(hiscallInfo, err)
 		return vNicDetachStatus, err
 	}
-*/
 
 	// VM 삭제
 	start := call.Start()
-	future, err := vmHandler.Client.Delete(vmHandler.Ctx, vmHandler.Region.ResourceGroup, vmIID.NameId)
+	future, err := vmHandler.Client.Delete(context.TODO(), vmHandler.Region.ResourceGroup, vmIID.NameId)
 	if err != nil {
 		LoggingError(hiscallInfo, err)
 		return irs.Failed, err
 	}
 	LoggingInfo(hiscallInfo, start)
 
-	err = future.WaitForCompletionRef(vmHandler.Ctx, vmHandler.Client.Client)
+	err = future.WaitForCompletionRef(context.TODO(), vmHandler.Client.Client)
 	if err != nil {
 		LoggingError(hiscallInfo, err)
 		return irs.Failed, err
 	}
 
-	// TODO: nested flow 개선
-	// VNic 삭제
-	vNicStatus, err := DeleteVNic(vmHandler, vmInfo)
-	if err != nil {
-		LoggingError(hiscallInfo, err)
-		return vNicStatus, err
-	}
+	time.Sleep(5 * time.Second)
+
+	errWg := new(errgroup.Group)
 
 	// TODO: nested flow 개선
 	// PublicIP 삭제
-	publicIPStatus, err := DeletePublicIP(vmHandler, vmInfo)
-	if err != nil {
-		LoggingError(hiscallInfo, err)
-		return publicIPStatus, err
-	}
+	errWg.Go(func() error {
+		_, err := DeletePublicIP(vmHandler, vmInfo)
+		if err != nil {
+			LoggingError(hiscallInfo, err)
+			return err
+		}
+		return nil
+	})
 
 	// TODO: nested flow 개선
 	// OS Disk 삭제
-	diskStatus, err := DeleteVMDisk(vmHandler, osDiskName)
-	if err != nil {
-		LoggingError(hiscallInfo, err)
-		return diskStatus, err
-	}
+	errWg.Go(func() error {
+		_, err := DeleteVMDisk(vmHandler, osDiskName)
+		if err != nil {
+			LoggingError(hiscallInfo, err)
+			return err
+		}
+		return nil
+	})
 
-	// 자체생성상태 반환
-	return irs.NotExist, nil
+	// TODO: nested flow 개선
+	// VNic 삭제
+	errWg.Go(func() error {
+		_, err := DeleteVNic(vmHandler, vmInfo)
+		if err != nil {
+			LoggingError(hiscallInfo, err)
+			return err
+		}
+		return nil
+	})
+
+	if err := errWg.Wait(); err == nil {
+		// 자체생성상태 반환
+		fmt.Println("Successfully delete all resources")
+		return irs.NotExist, nil
+	} else {
+		fmt.Println("failed delete all resources")
+		return irs.Failed, err
+	}
 }
 
 func (vmHandler *AzureVMHandler) ListVMStatus() ([]*irs.VMStatusInfo, error) {
@@ -324,8 +345,7 @@ func (vmHandler *AzureVMHandler) ListVMStatus() ([]*irs.VMStatusInfo, error) {
 	var vmStatusList []*irs.VMStatusInfo
 	for _, s := range serverList.Values() {
 		if s.InstanceView != nil {
-			statusStr := getVmStatus(*s.InstanceView)
-			status := irs.VMStatus(statusStr)
+			status := getVmStatus(*s.InstanceView)
 			vmStatusInfo := irs.VMStatusInfo{
 				IId: irs.IID{
 					NameId:   *s.Name,
@@ -582,7 +602,7 @@ func CreatePublicIP(vmHandler *AzureVMHandler, vmReqInfo irs.VMReqInfo) (irs.IID
 			Name: network.PublicIPAddressSkuName("Basic"),
 		},
 		PublicIPAddressPropertiesFormat: &network.PublicIPAddressPropertiesFormat{
-			PublicIPAddressVersion:   network.IPVersion("IPv4"),
+			PublicIPAddressVersion: network.IPVersion("IPv4"),
 			//PublicIPAllocationMethod: network.IPAllocationMethod("Static"),
 			PublicIPAllocationMethod: network.IPAllocationMethod("Dynamic"),
 			IdleTimeoutInMinutes:     to.Int32Ptr(4),
@@ -741,7 +761,8 @@ func DeleteVNic(vmHandler *AzureVMHandler, vmInfo irs.VMInfo) (irs.VMStatus, err
 		cblogger.Error(err)
 		return irs.Failed, err
 	}
-	err = nicDeleteFuture.WaitForCompletionRef(vmHandler.Ctx, vmHandler.NicClient.Client)
+	timeoutCtx, _ := context.WithTimeout(context.Background(), time.Second*120)
+	err = nicDeleteFuture.WaitForCompletionRef(timeoutCtx, vmHandler.NicClient.Client)
 	if err != nil {
 		cblogger.Error(err)
 		return irs.Failed, err
@@ -757,7 +778,8 @@ func DeleteVMDisk(vmHandler *AzureVMHandler, osDiskName string) (irs.VMStatus, e
 		cblogger.Error(err)
 		return irs.Failed, err
 	}
-	err = diskFuture.WaitForCompletionRef(vmHandler.Ctx, vmHandler.Client.Client)
+	timeoutCtx, _ := context.WithTimeout(context.Background(), time.Second*120)
+	err = diskFuture.WaitForCompletionRef(timeoutCtx, vmHandler.Client.Client)
 	if err != nil {
 		cblogger.Error(err)
 		return irs.Failed, err
